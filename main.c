@@ -42,10 +42,18 @@
 #include "cyhal.h"
 #include "cybsp.h"
 #include "cy_retarget_io.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 
 static void change_light(void *handler_arg, cyhal_gpio_event_t event) {
 	cyhal_gpio_toggle(CYBSP_USER_LED);
+}
+
+void worker(void *parameters) {
+	while (1) {
+		vTaskDelay(1000);
+	}
 }
 
 int main(void)
@@ -115,9 +123,16 @@ int main(void)
         CY_ASSERT(0);
     }
 
-    for (;;)
-    {
-    }
+    xTaskCreate(
+		worker,
+		"SimpleWorker",
+		256U,
+		NULL,
+		3,
+		NULL
+	);
+
+    vTaskStartScheduler();
 }
 
 /* [] END OF FILE */
